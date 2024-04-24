@@ -5,7 +5,7 @@ from jiwer import wer
 from streamlit_gsheets import GSheetsConnection
 
   
-conn = st.connection("gsheets", type=GSheetsConnection)  
+conn = st.connection("gsheets", type=GSheetsConnection, ttl=0)  
 leaderboard = conn.read(worksheet="Sheet1")
 
 # Load reference transcripts
