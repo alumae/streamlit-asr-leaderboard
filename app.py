@@ -34,7 +34,7 @@ def update_scores(leaderboard):
     
     return leaderboard
 
-def calculate_wer(submitted_df):
+def calculate_wer(reference_df, submitted_df):
     # Merging on sentence ID to align both the correct and the hypothesis transcripts
     comparison_df = pd.merge(reference_df, submitted_df, on='ID', how='left')
 
@@ -65,7 +65,7 @@ leaderboard, reference_df = fetch_data()
 if uploaded_file and username:
     try:
         submitted_df = pd.read_csv(uploaded_file, sep='\t', header=None, names=['ID', 'Hypothesis'])
-        current_wer = calculate_wer(submitted_df)
+        current_wer = calculate_wer(reference_df, submitted_df)
         # Continue with leaderboard update logic...
         if username in leaderboard['Username'].values:
           user_data = leaderboard[leaderboard['Username'] == username]
