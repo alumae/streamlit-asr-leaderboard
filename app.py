@@ -4,14 +4,12 @@ import jiwer
 from jiwer import wer
 from streamlit_gsheets import GSheetsConnection
 
-  
-conn = st.connection("gsheets", type=GSheetsConnection, ttl=0)  
-leaderboard = conn.read(worksheet="Sheet1")
 
-# Load reference transcripts
-#reference_df = pd.read_csv('reference_transcripts.tsv', sep='\t', header=None, names=['ID', 'Correct Transcript'])
-reference_df = conn.read(worksheet="Reference data", names=['ID', 'Correct Transcript'])
-
+def fetch_data():
+    conn = st.connection("gsheets", type=GSheetsConnection)
+    leaderboard = conn.read(worksheet="Sheet1")
+    reference_df = conn.read(worksheet="Reference data", names=['ID', 'Correct Transcript'])
+    return leaderboard, reference_df
 
 def update_scores(leaderboard):
     # Sort by 'Best WER' in ascending order to find the top scores
@@ -61,6 +59,8 @@ username = st.text_input("Enter your username")
 # File uploader
 uploaded_file = st.file_uploader("Upload your TSV file", type='tsv')
 
+# Fetch data on each load/refresh
+leaderboard, reference_df = fetch_data()
 
 if uploaded_file and username:
     try:
