@@ -2,11 +2,12 @@ import streamlit as st
 import pandas as pd
 from jiwer import wer
 from streamlit_gsheets import GSheetsConnection
+import random
 
 # Function to fetch data from Google Sheets
 def fetch_data():
-    conn = st.connection("gsheets", type=GSheetsConnection)
-    leaderboard = conn.read(worksheet="Sheet1")
+    conn = st.connection("gsheets", type=GSheetsConnection, ttl=1)
+    leaderboard = conn.read(worksheet="Sheet1", ttl=0)
     reference_df = conn.read(worksheet="Reference data", names=['ID', 'Correct Transcript'])
     return leaderboard, reference_df, conn
 
