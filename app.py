@@ -6,7 +6,7 @@ import random
 
 # Function to fetch data from Google Sheets
 def fetch_data():
-    conn = st.connection("gsheets", type=GSheetsConnection, ttl=1)
+    conn = st.connection("gsheets", type=GSheetsConnection)
     leaderboard = conn.read(worksheet="Sheet1", ttl=0)
     reference_df = conn.read(worksheet="Reference data", names=['ID', 'Correct Transcript'])
     return leaderboard, reference_df, conn
@@ -29,8 +29,10 @@ def update_scores(leaderboard):
 
 # Function to calculate WER
 def calculate_wer(reference_df, submitted_df):
+    submitted_df = submitted_df.fillna("")
     comparison_df = pd.merge(reference_df, submitted_df, on='ID', how='left')
     if comparison_df['Hypothesis'].isna().any():
+        print(comparison_df[comparison_df["Hypothesis"].isna()])
         raise ValueError("Some IDs in the submitted file do not have corresponding entries in the reference file.")
     reference_texts = comparison_df['Correct Transcript'].tolist()
     hypothesis_texts = comparison_df['Hypothesis'].tolist()
