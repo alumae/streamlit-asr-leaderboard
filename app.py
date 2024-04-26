@@ -51,6 +51,7 @@ if uploaded_file and username:
     submitted_df = pd.read_csv(uploaded_file, sep='\t', header=None, names=['ID', 'Hypothesis'])
     try:
         current_wer = calculate_wer(reference_df, submitted_df)
+        st.text(f"The error rate of your last submission was {current_wer:.2f}")
         if username in leaderboard['Username'].values:
             user_data = leaderboard[leaderboard['Username'] == username]
             if current_wer < user_data['Best WER'].iloc[0]:
