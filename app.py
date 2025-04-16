@@ -8,7 +8,7 @@ import random
 def fetch_data():
     conn = st.connection("gsheets", type=GSheetsConnection)
     leaderboard = conn.read(worksheet="Sheet1", ttl=0)
-    reference_df = conn.read(worksheet="Reference data", names=['ID', 'Correct Transcript'])
+    reference_df = conn.read(worksheet="Reference data", names=['Language', 'Word', 'Phonemes'])
     return leaderboard, reference_df, conn
 
 # Function to update the scores based on WER calculations
@@ -30,11 +30,11 @@ def update_scores(leaderboard):
 # Function to calculate WER
 def calculate_wer(reference_df, submitted_df):
     submitted_df = submitted_df.fillna("")
-    comparison_df = pd.merge(reference_df, submitted_df, on='ID', how='left')
+    comparison_df = pd.merge(reference_df, submitted_df, on=['Language', 'Word'], how='left')
     if comparison_df['Hypothesis'].isna().any():
         print(comparison_df[comparison_df["Hypothesis"].isna()])
-        raise ValueError("Some IDs in the submitted file do not have corresponding entries in the reference file.")
-    reference_texts = comparison_df['Correct Transcript'].tolist()
+        raise ValueError("Some language-word pairs in the submitted file do not have corresponding entries in the reference file.")
+    reference_texts = comparison_df['Phonemes'].tolist()
     hypothesis_texts = comparison_df['Hypothesis'].tolist()
     error = wer(reference_texts, hypothesis_texts)
     return error
@@ -48,7 +48,7 @@ uploaded_file = st.file_uploader("Upload your TSV file", type='tsv')
 leaderboard, reference_df, conn = fetch_data()
 
 if uploaded_file and username:
-    submitted_df = pd.read_csv(uploaded_file, sep='\t', header=None, names=['ID', 'Hypothesis'])
+    submitted_df = pd.read_csv(uploaded_file, sep='\t', header=None, names=['Language', 'Word', 'Hypothesis'])
     try:
         current_wer = calculate_wer(reference_df, submitted_df)
         st.text(f"The error rate of your last submission was {current_wer:.2f}")
